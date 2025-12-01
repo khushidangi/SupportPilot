@@ -1,6 +1,8 @@
 """ML Predictor - sentiment analysis and priority prediction"""
 from backend.ml.preprocessor import MLPreprocessor
 from typing import Dict, Tuple
+import os
+import joblib
 
 
 class SentimentAnalyzer:
@@ -8,6 +10,14 @@ class SentimentAnalyzer:
     
     def __init__(self):
         self.preprocessor = MLPreprocessor()
+        model_path = os.path.join(os.path.dirname(__file__), 'sentiment_model.pkl')
+        self.model = None
+        if os.path.exists(model_path):
+            try:
+                self.model = joblib.load(model_path)
+                print("[SentimentAnalyzer] Loaded trained model")
+            except Exception as e:
+                print(f"[SentimentAnalyzer] Failed to load model: {e}")
         
     def analyze(self, text: str) -> Dict:
         """
@@ -17,7 +27,17 @@ class SentimentAnalyzer:
         if not text:
             return {'score': 0.5, 'label': 'neutral'}
         
-        # Simple heuristic-based sentiment analysis
+        # Use trained model if available
+        if self.model:
+            try:
+                label = self.model.predict([text])[0]
+                proba = self.model.predict_proba([text])[0]
+                score = max(proba)
+                return {'score': round(float(score), 3), 'label': str(label)}
+            except Exception as e:
+                print(f"[SentimentAnalyzer] Model prediction failed: {e}")
+        
+        # Fallback: Simple heuristic-based sentiment analysis
         cleaned_text = self.preprocessor.clean_text(text)
         tokens = self.preprocessor.tokenize(cleaned_text)
         
@@ -60,6 +80,14 @@ class PriorityPredictor:
     
     def __init__(self):
         self.preprocessor = MLPreprocessor()
+        model_path = os.path.join(os.path.dirname(__file__), 'priority_model.pkl')
+        self.model = None
+        if os.path.exists(model_path):
+            try:
+                self.model = joblib.load(model_path)
+                print("[PriorityPredictor] Loaded trained model")
+            except Exception as e:
+                print(f"[PriorityPredictor] Failed to load model: {e}")
         
     def predict_priority(self, ticket_text: str, sentiment_score: float = 0.5) -> str:
         """
@@ -69,6 +97,15 @@ class PriorityPredictor:
         if not ticket_text:
             return 'medium'
         
+        # Use trained model if available
+        if self.model:
+            try:
+                priority = self.model.predict([ticket_text])[0]
+                return str(priority).lower()
+            except Exception as e:
+                print(f"[PriorityPredictor] Model prediction failed: {e}")
+        
+        # Fallback: heuristic-based
         cleaned_text = self.preprocessor.clean_text(ticket_text).lower()
         
         # Urgent keywords

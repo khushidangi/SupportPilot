@@ -2,6 +2,7 @@
 from typing import List, Dict, Optional
 from datetime import datetime
 from backend.models.ticket import Ticket
+import uuid
 
 
 class TicketService:
@@ -14,7 +15,9 @@ class TicketService:
                      priority: str = "medium") -> Dict:
         """Create a new ticket"""
         try:
+            ticket_id = str(uuid.uuid4())
             ticket_data = {
+                'ticket_id': ticket_id,
                 'customer_id': customer_id,
                 'title': title,
                 'description': description,
@@ -23,8 +26,11 @@ class TicketService:
                 'created_at': datetime.utcnow().isoformat(),
                 'updated_at': datetime.utcnow().isoformat()
             }
+            print("[TicketService] Inserting ticket:", ticket_data)
             result = self.db.table('tickets').insert(ticket_data).execute()
-            return {'success': True, 'data': result.data[0] if result.data else ticket_data}
+            # Some Supabase setups don't return inserted row; fall back to ticket_data
+            data = result.data[0] if getattr(result, 'data', None) else ticket_data
+            return {'success': True, 'data': data}
         except Exception as e:
             return {'success': False, 'error': str(e)}
     

@@ -16,6 +16,7 @@ export default function LoginPage(){
       // Save token & redirect based on role
       const data = res.data.data
       localStorage.setItem('sp_token', data.token)
+      localStorage.setItem('sp_role', data.role)
       if(data.role === 'admin') window.location.href = '/admin'
       else if(data.role === 'agent') window.location.href = '/agent'
       else window.location.href = '/customer'

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import api from '../api/client'
 import TicketCard from '../components/TicketCard'
+import AddTicketForm from '../components/AddTicketForm'
 
 export default function CustomerDashboard(){
   const [tickets, setTickets] = useState([])
@@ -20,10 +21,15 @@ export default function CustomerDashboard(){
 
   return (
     <div className="page">
-      <h2>My Tickets</h2>
-      <div className="ticket-list">
-        {tickets.length === 0 && <div>No tickets yet</div>}
-        {tickets.map(t => <TicketCard key={t.ticket_id || t.id} ticket={t} />)}
+      <div className="grid-2">
+        <AddTicketForm onCreated={(t)=> setTickets(prev => [t, ...prev])} />
+        <div>
+          <h2>My Tickets</h2>
+          <div className="ticket-list">
+            {tickets.length === 0 && <div>No tickets yet</div>}
+            {tickets.map(t => <TicketCard key={t.ticket_id || t.id} ticket={t} />)}
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -1,6 +1,7 @@
 """Comment Service - handles comment operations"""
 from typing import List, Dict
 from datetime import datetime
+import uuid
 
 
 class CommentService:
@@ -13,7 +14,9 @@ class CommentService:
                       is_internal: bool = False) -> Dict:
         """Create a new comment"""
         try:
+            comment_id = str(uuid.uuid4())
             comment_data = {
+                'comment_id': comment_id,
                 'ticket_id': ticket_id,
                 'author_id': author_id,
                 'content': content,
