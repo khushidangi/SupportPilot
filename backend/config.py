@@ -11,7 +11,7 @@ class Config:
     TESTING = False
     
     # CORS
-    CORS_ORIGINS = ['http://localhost:3000', 'http://localhost:5000']
+    CORS_ORIGINS = ['http://localhost:3000', 'http://localhost:5001']
     
     # JWT
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'jwt-secret-key')
