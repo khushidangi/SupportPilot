@@ -10,8 +10,9 @@ from dotenv import load_dotenv
 # Ensure backend module is importable
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from root directory
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(root_dir, '.env'))
 
 # Import configuration and components
 from backend.config import get_config
@@ -52,6 +53,8 @@ def create_app():
             print("⚠  Supabase credentials missing — running in demo mode")
     except Exception as e:
         print(f"⚠  Supabase error: {e} — continuing in demo mode")
+        import traceback
+        traceback.print_exc()
     
     # Initialize JWT
     jwt_secret = os.getenv('JWT_SECRET_KEY', app.config['JWT_SECRET_KEY'])
@@ -265,8 +268,15 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5001))
     debug = os.getenv('FLASK_ENV') == 'development'
     
-    app.run(
-        host='0.0.0.0',
-        port=port,
-        debug=debug
-    )
+    try:
+        app.run(
+            host='0.0.0.0',
+            port=port,
+            debug=debug,
+            use_reloader=False
+        )
+    except Exception as e:
+        print(f"ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+        input("Press Enter to exit...")
